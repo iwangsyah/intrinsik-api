@@ -1,35 +1,32 @@
-var app = require('express')();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+// var mysql = require('mysql');
+// var connection = mysql.createConnection({
+//     host: 'us-cdbr-east-03.cleardb.com',
+//     user: 'ba40db63d59eac',
+//     password: 'e7421c9a',
+//     database: 'heroku_77109471d4e6761'
+// });
 
-var users = []
-var port = process.env.PORT || 3000
+// connection.connect(function (err) {
+//     if (err) {
+//         console.error('error connecting: ' + err.stack);
+//         return;
+//     }
 
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+//     console.log('connected as id ' + connection.threadId);
+// });
+
+const express = require("express");
+const app = express();
+const server = require("http").createServer(app);
+const io = require("socket.io")(server)
+const port = process.env.PORT || 3000;
+
+io.on("connection", socket => {
+    console.log("connected: ");
+    socket.on("chat message", msg => {
+        console.log('msg: ', msg);
+        io.emit("chat message", msg);
+    })
 });
 
-io.on('connection', function (socket) {
-    console.log('a user connected');
-    socket.on('disconnect', function () {
-        console.log('user disconnected');
-    });
-    socket.on('chat message', function (data) {
-        let index = users.findIndex(user => {
-            return user.userId === data.userId
-        });
-        users[index].socket.emit('chat message', data.message);
-    });
-    socket.on('online', function (userId) {
-        users.push({
-            socket,
-            userId
-        })
-        console.log(users)
-        // io.emit('chat message', msg);
-    });
-});
-
-http.listen(port, function () {
-    console.log('listening on *:3000');
-});
+server.listen(port, () => console.log("server running: " + port));
