@@ -45,7 +45,7 @@ router.post('/chat/send', (req, res) => {
 });
 
 
-router.post('/chat/last', (req, res) => {
+router.post('/chat/read', (req, res) => {
     const { id } = req.body;
     const sqlQuery = "UPDATE rooms SET is_read = 1 WHERE id_room = " + connection.escape(id);
 
@@ -53,7 +53,7 @@ router.post('/chat/last', (req, res) => {
 });
 
 
-router.post('/chat/read', (req, res) => {
+router.post('/chat/last', (req, res) => {
     const { id_room, id_chat } = req.body;
     const sqlQuery = "UPDATE chat SET last_chat_id = " + connection.escape(id_chat) + "WHERE id_room = " + connection.escape(id_room);
 
