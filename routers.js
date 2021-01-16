@@ -16,6 +16,14 @@ router.post('/login', (req, res) => {
 
 })
 
+router.post('/register', (req, res) => {
+    const { email, username, password } = req.body;
+    const sqlQuery = "INSERT INTO rooms ( email, username, password ) VALUES ( " + connection.escape(email) + ", " + connection.escape(username); + ", " + connection.escape(password) + " )";
+
+    connect(sqlQuery, req, res);
+
+})
+
 router.post('/contacts', (req, res) => {
     const { email } = req.body;
     const sqlQuery = "SELECT * FROM users WHERE email != " + connection.escape(email);
