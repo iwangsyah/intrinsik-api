@@ -22,8 +22,27 @@ router.post('/contacts', (req, res) => {
     connect(sqlQuery, req, res);
 });
 
-router.post('/chat/rooms', (req, res) => {
-    const { id } = req.body;
+router.post('/chat/rooms/create', (req, res) => {
+    const { id_user_1, id_user_2, username_1, username_2, last_chat_id } = req.body;
+
+    const sqlCheck = "SELECT * FROM rooms WHERE (id_user_1 = " + connection.escape(id_user_1) + " AND id_user_2 = " + connection.escape(id_user_2) + ") OR (id_user_1 = " + connection.escape(id_user_2) + " AND id_user_2 = " + connection.escape(id_user_1) + ")";
+
+    console.log(sqlCheck);
+
+
+    connection.query(sqlCheck, (error, results) => {
+        if (error) throw error;
+        console.log('create : ', results);
+        if (results.length == 0) {
+            const sqlQuery = "INSERT INTO rooms ( id_user_1, id_user_2, username_1, username_2, last_chat_id) VALUES (" + connection.escape(id_user_1) + ", " + connection.escape(id_user_2) + ", " + connection.escape(username_1) + ", " + connection.escape(username_2) + ", " + connection.escape(last_chat_id) + ")";
+
+            connect(sqlQuery, req, res);
+        }
+    })
+});
+
+router.get('/chat/rooms/:id', (req, res) => {
+    const { id } = req.params;
     const sqlQuery = "SELECT distinct rooms.id_room, rooms.id_user_1, rooms.username_1, username_2, rooms.id_user_2, chat.type, chat.message, chat.data, chat.is_read, chat.created_at FROM((rooms INNER JOIN users ON rooms.id_user_1 = " + connection.escape(id) + " OR rooms.id_user_2 = " + connection.escape(id) + ") INNER JOIN chat ON rooms.last_chat_id = chat.id_chat)";
 
     connect(sqlQuery, req, res);
@@ -37,7 +56,6 @@ router.get('/chat/list/:id', (req, res) => {
 });
 
 router.post('/chat/send', (req, res) => {
-    console.log('req send: ', req.body);
     const { id_room, id_user, type, data, message, created_at } = req.body;
     const sqlQuery = "INSERT INTO chat (id_room, id_user, type, data, message, created_at) VALUES (" + connection.escape(id_room) + ", " + connection.escape(id_user) + ", " + connection.escape(type) + ", " + connection.escape(data) + ", " + connection.escape(message) + ", " + connection.escape(created_at) + ")";
 
@@ -56,6 +74,13 @@ router.post('/chat/read', (req, res) => {
 router.post('/chat/last', (req, res) => {
     const { id_room, id_chat } = req.body;
     const sqlQuery = "UPDATE rooms SET last_chat_id = " + connection.escape(id_chat) + " WHERE id_room = " + connection.escape(id_room);
+
+    connect(sqlQuery, req, res);
+});
+
+router.get('/chat/rooms/:id_1/:id_2', (req, res) => {
+    const { id_1, id_2 } = req.params;
+    const sqlQuery = "SELECT * FROM rooms WHERE id_user_1 = " + connection.escape(id_1) + " AND id_user_2 = " + connection.escape(id_2) + " OR id_user_1 = " + connection.escape(id_2) + " AND id_user_2 = " + connection.escape(id_1);
 
     connect(sqlQuery, req, res);
 });
