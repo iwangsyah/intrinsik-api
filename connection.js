@@ -6,11 +6,11 @@ const connection = mysql.createPool({
     database: 'heroku_869dca18e0dbb80'
 });
 
-connection.connect(function (err) {
-    if (err) {
-        console.error('error connecting: ' + err.stack);
-        return;
-    }
-});
+// connection.connect(function (err) {
+//     if (err) {
+//         console.error('error connecting: ' + err.stack);
+//         return;
+//     }
+// });
 
 module.exports = connection;
