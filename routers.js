@@ -18,10 +18,20 @@ router.post('/login', (req, res) => {
 
 router.post('/register', (req, res) => {
     const { email, username, password } = req.body;
-    const sqlQuery = "INSERT INTO rooms ( email, username, password ) VALUES ( " + connection.escape(email) + ", " + connection.escape(username); + ", " + connection.escape(password) + " )";
 
-    connect(sqlQuery, req, res);
+    const sqlCheck = "SELECT * FROM users WHERE email = " + connection.escape(email);
 
+    connection.query(sqlCheck, (error, results) => {
+        if (error) throw error;
+
+        if (results.length == 0) {
+            const sqlQuery = "INSERT INTO users ( email, username, password ) VALUES ( " + connection.escape(email) + ", " + connection.escape(username) + ", " + connection.escape(password) + " )";
+
+            connect(sqlQuery, req, res);
+        } else {
+            connect(sqlCheck, req, res);
+        }
+    })
 })
 
 router.post('/contacts', (req, res) => {
@@ -35,12 +45,9 @@ router.post('/chat/rooms/create', (req, res) => {
 
     const sqlCheck = "SELECT * FROM rooms WHERE (id_user_1 = " + connection.escape(id_user_1) + " AND id_user_2 = " + connection.escape(id_user_2) + ") OR (id_user_1 = " + connection.escape(id_user_2) + " AND id_user_2 = " + connection.escape(id_user_1) + ")";
 
-    console.log(sqlCheck);
-
 
     connection.query(sqlCheck, (error, results) => {
         if (error) throw error;
-        console.log('create : ', results);
         if (results.length == 0) {
             const sqlQuery = "INSERT INTO rooms ( id_user_1, id_user_2, username_1, username_2, last_chat_id) VALUES (" + connection.escape(id_user_1) + ", " + connection.escape(id_user_2) + ", " + connection.escape(username_1) + ", " + connection.escape(username_2) + ", " + connection.escape(last_chat_id) + ")";
 
