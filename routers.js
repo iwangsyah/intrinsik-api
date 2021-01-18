@@ -51,7 +51,10 @@ router.post('/chat/rooms/create', (req, res) => {
         if (results.length == 0) {
             const sqlQuery = "INSERT INTO rooms ( id_user_1, id_user_2, username_1, username_2, last_chat_id) VALUES (" + connection.escape(id_user_1) + ", " + connection.escape(id_user_2) + ", " + connection.escape(username_1) + ", " + connection.escape(username_2) + ", " + connection.escape(last_chat_id) + ")";
 
-            connect(sqlQuery, req, res);
+            connection.query(sqlQuery, (error, results) => {
+                if (error) throw error;
+                connect(sqlCheck, req, res);
+            })
         }
     })
 });
